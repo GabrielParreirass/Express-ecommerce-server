@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
 require('dotenv').config()
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
 let db = mongoose.connection
 
 
@@ -15,40 +16,40 @@ mongoose.connect(process.env.DB_URL)
 const ProductSchema = require('./Schemas/ProductSchema')
 const Products = mongoose.model('Products', ProductSchema)
 
-app.get('/getAll', async (req,res) => {
+app.get('/getAll', async (req, res) => {
 
-    const allProducts = await Products.find({ })
+    const allProducts = await Products.find({})
 
     res.send(allProducts)
 })
 
-app.get('/getBasquete', async (req,res) => {
-    const basqueteProducts = await Products.find({sport: 'basquete'})
+app.get('/getBasquete', async (req, res) => {
+    const basqueteProducts = await Products.find({ sport: 'basquete' })
 
     res.send(basqueteProducts)
 })
-app.get('/getFutebol', async (req,res) => {
-    const futebolProducts = await Products.find({sport: 'futebol'})
+app.get('/getFutebol', async (req, res) => {
+    const futebolProducts = await Products.find({ sport: 'futebol' })
 
     res.send(futebolProducts)
 })
 
-app.get('/products/:id', async (req,res) => {
+app.get('/products/:id', async (req, res) => {
     const productId = req.params.id
 
     try {
-        const selectedProduct = await Products.findOne({_id: productId})
+        const selectedProduct = await Products.findOne({ _id: productId })
         res.send(selectedProduct)
     } catch (error) {
         res.send('Id invalido ou inexistente')
     }
-    
+
 })
 
-app.get('/getBrasileiro', async (req,res) => {
+app.get('/getBrasileiro', async (req, res) => {
 
     try {
-        const selectedBrasileiros = await Products.find({classe: 'brasileiro'})
+        const selectedBrasileiros = await Products.find({ classe: 'brasileiro' })
         res.send(selectedBrasileiros)
     } catch (error) {
         res.send('Não existem produtos ainda')
@@ -56,15 +57,43 @@ app.get('/getBrasileiro', async (req,res) => {
 
 })
 
-app.get('/getInternacional', async (req,res) => {
+app.get('/getInternacional', async (req, res) => {
 
     try {
-        const selectedBrasileiros = await Products.find({classe: 'internacional'})
+        const selectedBrasileiros = await Products.find({ classe: 'internacional' })
         res.send(selectedBrasileiros)
     } catch (error) {
         res.send('Não existem produtos ainda')
     }
 
+})
+
+
+app.post('/checkout', async (req, res) => {
+    try {
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            line_items: req.body.items.map(item => {
+                return {
+                    price_data: {
+                        currency: 'brl',
+                        product_data: {
+                            name: item.team,
+                            description: `Tamanho: ${item.size} | Nome Personalizado: ${item.namePerso} | Numero Personalizado: ${item.number} `
+                        },
+                        unit_amount: item.price * 100
+                    },
+                    quantity: item.quantity
+                }
+            }),
+            success_url: 'https://www.youtube.com/',
+            cancel_ulr: 'https://github.com/GabrielParreirass/'
+        })
+        res.send(session.url)
+    } catch (error) {
+        res.send(error)
+    }
 })
 
 
