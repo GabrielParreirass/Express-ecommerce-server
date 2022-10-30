@@ -88,7 +88,7 @@ app.post('/checkout', async (req, res) => {
                 }
             }),
             success_url: 'https://www.youtube.com/',
-            cancel_ulr: 'https://github.com/GabrielParreirass/'
+            cancel_url: 'https://github.com/GabrielParreirass/'
         })
         res.send(session.url)
     } catch (error) {
