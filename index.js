@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
 require('dotenv').config()
-const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
+const stripe = require('stripe')('sk_test_51LEKnaJ4lufim0SgI5e76tPEkitvmhY1CmwInaMGCARUJyJDTOlxFL8wfB2bwc4vkKFYwp1z4Wp8VXpyVLXM4PQC00GNnIaD2b')
 let db = mongoose.connection
 
 
