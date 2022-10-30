@@ -70,6 +70,9 @@ app.get('/getInternacional', async (req, res) => {
 
 
 app.post('/checkout', async (req, res) => {
+
+    console.log(req.body.items)
+
     try {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -79,7 +82,7 @@ app.post('/checkout', async (req, res) => {
                     price_data: {
                         currency: 'brl',
                         product_data: {
-                            name: item.team,
+                            name: item.name,
                             description: `Tamanho: ${item.size} | Nome Personalizado: ${item.namePerso} | Numero Personalizado: ${item.number} `
                         },
                         unit_amount: item.price * 100
@@ -100,7 +103,8 @@ app.post('/checkout', async (req, res) => {
 db.on('error', () => { console.log('Houve um erro') })
 db.once('open', () => { console.log('DataBase loaded') })
 
-const port = process.env.PORT || 3001
-app.listen(port, (req, res) => {
+// const port = process.env.PORT || 3001
+
+app.listen(3001, (req, res) => {
     console.log('Listening on 3001')
 })
