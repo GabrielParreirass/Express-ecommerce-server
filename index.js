@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
 require('dotenv').config()
-const stripe = require('stripe')('sk_test_51LEKnaJ4lufim0SgI5e76tPEkitvmhY1CmwInaMGCARUJyJDTOlxFL8wfB2bwc4vkKFYwp1z4Wp8VXpyVLXM4PQC00GNnIaD2b')
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
 let db = mongoose.connection
 
 
@@ -15,6 +15,12 @@ mongoose.connect(process.env.DB_URL)
 
 const ProductSchema = require('./Schemas/ProductSchema')
 const Products = mongoose.model('Products', ProductSchema)
+
+app.get('/getForHome', async (req, res) => {
+    const allProducts = await Products.find({ mainPage: 'true' })
+
+    res.send(allProducts)
+})
 
 app.get('/getAll', async (req, res) => {
 
@@ -68,15 +74,50 @@ app.get('/getInternacional', async (req, res) => {
 
 })
 
+app.get('/getSelecoes', async (req, res) => {
+    try {
+        const selectedSeleções = await Products.find({ classe: 'selecao' })
+        res.send(selectedSeleções)
+    } catch (error) {
+        res.send('Não existem produtos ainda')
+    }
+
+})
+
 
 app.post('/checkout', async (req, res) => {
 
-    console.log(req.body.items)
+
 
     try {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'payment',
+            shipping_address_collection: { allowed_countries: ['US', 'BR'] },
+            shipping_options: [
+                {
+                    shipping_rate_data: {
+                        type: "fixed_amount",
+                        fixed_amount: { amount: 0, currency: 'brl' },
+                        display_name: 'Freete Grátis',
+                        delivery_estimate: {
+                            minimum: { unit: 'business_day', value: 20 },
+                            maximum: { unit: 'business_day', value: 30 },
+                        },
+                    },
+                },
+                {
+                    shipping_rate_data: {
+                        type: "fixed_amount",
+                        fixed_amount: { amount: 1890, currency: 'brl' },
+                        display_name: 'Entrega mais rapida',
+                        delivery_estimate: {
+                            minimum: { unit: 'business_day', value: 10 },
+                            maximum: { unit: 'business_day', value: 20 },
+                        },
+                    },
+                },
+            ],
             line_items: req.body.items.map(item => {
                 return {
                     price_data: {
@@ -90,8 +131,11 @@ app.post('/checkout', async (req, res) => {
                     quantity: item.quantity
                 }
             }),
-            success_url: 'https://www.youtube.com/',
-            cancel_url: 'https://github.com/GabrielParreirass/'
+            phone_number_collection: {
+                enabled: true,
+              },
+            success_url: `http://localhost:3000/checkout/success`,
+            cancel_url: `http://localhost:3000//checkout/cancel`
         })
         res.send(session.url)
     } catch (error) {

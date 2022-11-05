@@ -7,6 +7,8 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     sport: String,
     classe: String,
+    mainPage: String,
+    league: String
 })
 
 module.exports = ProductSchema
