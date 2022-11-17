@@ -84,6 +84,15 @@ app.get('/getSelecoes', async (req, res) => {
 
 })
 
+app.get('/getInfantil', async (req, res) => {
+    try {
+        const selectedInfantil = await Products.find({ classe: 'infantil' })
+        res.send(selectedInfantil)
+    } catch (error) {
+        res.send('Não existem produtos ainda')
+    }
+})
+
 
 app.post('/checkout', async (req, res) => {
 
