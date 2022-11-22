@@ -93,6 +93,25 @@ app.get('/getInfantil', async (req, res) => {
     }
 })
 
+app.get('/getFeminino', async (req, res) => {
+    try {
+        const selectedFeminino = await Products.find({ classe: 'feminino' })
+        res.send(selectedFeminino)
+    } catch (error) {
+        res.send('Não existem produtos ainda')
+    }
+})
+
+
+app.get('/getRetro', async (req, res) => {
+    try {
+        const selectedRetro= await Products.find({ classe: 'retrô' })
+        res.send(selectedRetro)
+    } catch (error) {
+        res.send('Não existem produtos ainda')
+    }
+})
+
 
 app.post('/checkout', async (req, res) => {
 
