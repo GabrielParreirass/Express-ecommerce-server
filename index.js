@@ -127,7 +127,7 @@ app.post('/checkout', async (req, res) => {
                     shipping_rate_data: {
                         type: "fixed_amount",
                         fixed_amount: { amount: 0, currency: 'brl' },
-                        display_name: 'Freete Grátis',
+                        display_name: 'Frete Grátis',
                         delivery_estimate: {
                             minimum: { unit: 'business_day', value: 20 },
                             maximum: { unit: 'business_day', value: 30 },
@@ -138,7 +138,7 @@ app.post('/checkout', async (req, res) => {
                     shipping_rate_data: {
                         type: "fixed_amount",
                         fixed_amount: { amount: 1890, currency: 'brl' },
-                        display_name: 'Entrega mais rapida',
+                        display_name: 'Frete Expresso',
                         delivery_estimate: {
                             minimum: { unit: 'business_day', value: 10 },
                             maximum: { unit: 'business_day', value: 20 },
@@ -177,6 +177,6 @@ db.once('open', () => { console.log('DataBase loaded') })
 
 // const port = process.env.PORT || 3001
 
-app.listen(3001, (req, res) => {
+app.listen(3001 || process.env.PORT, (req, res) => {
     console.log('Listening on 3001')
 })
